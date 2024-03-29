@@ -22,7 +22,7 @@ public class DevAgentController {
         log.info("DevAgentController post errors");
 
             //Queue Mechanism - When P1 completes, then P2 ...
-       scmService.getBinary(error.getError());
+       scmService.getBinary(error);
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
 

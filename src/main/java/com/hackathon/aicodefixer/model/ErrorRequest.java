@@ -8,6 +8,18 @@ import lombok.Data;
 @JsonInclude
 public class ErrorRequest {
 
-    @JsonProperty("error")
-    private String error;
+    @JsonProperty("exception")
+    private String exception;
+
+    /*@JsonProperty("scm_exception_details")
+    private String scm_exception_details;*/
+
+    @JsonProperty("className")
+    private String className;
+
+    @JsonProperty("methodName")
+    private String methodName;
+
+    @JsonProperty("lineNo")
+    private String lineNo;
 }
