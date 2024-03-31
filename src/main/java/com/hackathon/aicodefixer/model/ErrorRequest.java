@@ -22,4 +22,7 @@ public class ErrorRequest {
 
     @JsonProperty("lineNo")
     private String lineNo;
+
+    @JsonProperty("issueId")
+    private String issueId;
 }
