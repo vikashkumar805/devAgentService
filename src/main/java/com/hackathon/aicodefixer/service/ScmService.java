@@ -64,7 +64,7 @@ public class ScmService {
             ResponseEntity<String> responseEntity = restTemplate.exchange("http://phoenix431339.private5.oaceng02phx.oraclevcn.com:5001/getCodeFix", HttpMethod.POST, requestEntity, String.class);
             log.info("Calling LLM API ENDS");
             // Get response body
-             responseBody = responseEntity.getBody();
+            responseBody = responseEntity.getBody();
 
             log.info("responseBody {}", responseBody.toString());
             log.info("responseEntity.getStatusCode() {}", responseEntity.getStatusCode());
@@ -83,7 +83,7 @@ public class ScmService {
         log.info("Start reading file");
         //String fileContents = readFile(file.toPath());
         List<String> fileContentList = Files.readAllLines(file.toPath());
-       // log.info("file Contents {}", fileContents);
+        // log.info("file Contents {}", fileContents);
         MethodDetails details = extractMethodContent(file.getAbsolutePath().toString(),methodName);
         log.info("methodSnippet {}",details);
         String errorFixCode = processLLM(error.getException(),details.getContent());
@@ -163,18 +163,21 @@ public class ScmService {
             log.error("git repo doesn't exists");
         }
         log.info("Cloning Starts");
-       Git git =  Git.cloneRepository()
+        Git git =  Git.cloneRepository()
                 .setURI(repositoryURL)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider("vikashkumar805", "GitHub@OL2$"))
-               .setBranch("brokenbranch")
+                .setBranch("brokenbranch")
                 .setDirectory(new File(downloadPath)).call();
-       //Use Project token provided by Chandra
+        //Use Project token provided by Chandra
 
         log.info("Cloning Ends");
         // Checkout the base branch
        /* git.checkout()
                 .setName("brokenbranch")
                 .call();*/
+
+        String username = "vikashkumar805";
+        String key = "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";
 
         log.info("create Branch in Git with name {}", branchName.concat(("_codefix")));
         git.branchCreate().setName(branchName.concat("_codefix")).call();
@@ -190,8 +193,8 @@ public class ScmService {
         git.commit().setMessage(commitMsg).call();
         log.info("Git Push initiated");
         git.push().setCredentialsProvider
-                (new UsernamePasswordCredentialsProvider
-                        ("vikashkumar805", "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"))
+                        (new UsernamePasswordCredentialsProvider
+                                (username, key))
                 .call();
         log.info("Git Push completed");
         git.getRepository().close();
@@ -213,20 +216,20 @@ public class ScmService {
     private void createBinaries(String downloadPath) {
         String projectPath = String.valueOf(Path.of(downloadPath).resolve("projectapp"));
         log.info("projectPath {}",projectPath);
-       // String downloadPathUpdated = downloadPath.concat("/productapp");
-            GradleConnector connector = GradleConnector.newConnector();
-            log.info("Gradle Connector {}",connector);
-            connector.forProjectDirectory(new File(projectPath));
+        // String downloadPathUpdated = downloadPath.concat("/productapp");
+        GradleConnector connector = GradleConnector.newConnector();
+        log.info("Gradle Connector {}",connector);
+        connector.forProjectDirectory(new File(projectPath));
 
-            ProjectConnection connection = connector.connect();
-            try {
-                connection.newBuild().forTasks("clean", "build").run();
-                log.info("Project built successfully.");
-            } catch (Exception e) {
-                log.error("Failed to build project: " + e.getMessage());
-            } finally {
-                connection.close();
-            }
+        ProjectConnection connection = connector.connect();
+        try {
+            connection.newBuild().forTasks("clean", "build").run();
+            log.info("Project built successfully.");
+        } catch (Exception e) {
+            log.error("Failed to build project: " + e.getMessage());
+        } finally {
+            connection.close();
+        }
     }
 
     private String processPullRequest(ErrorRequest error) {
@@ -241,11 +244,12 @@ public class ScmService {
             request.setBase("brokenbranch");
             request.setHead(error.getIssueId().concat("_codefix"));
 
+            String key = "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";
             // Set headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "application/vnd.github+json");
-            headers.set("Authorization", "Bearer " + "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");
+            headers.set("Authorization", "Bearer " + key);
             headers.set("X-GitHub-Api-Version", "2022-11-28");
 
             // Set request entity
@@ -326,7 +330,7 @@ public class ScmService {
                         openBracesCount--;
                         log.info("openBracesCount for }",openBracesCount );
                         if (openBracesCount == 0) {
-                        details.setEndLine(lineCounter);
+                            details.setEndLine(lineCounter);
                             break;
                         }
                     }
@@ -348,7 +352,7 @@ public class ScmService {
 
     public void deleteFolder(Path dir) throws IOException {
         log.info("deleteFolder START");
-       // path to the directory
+        // path to the directory
         log.info("deleting repo from directory::" + dir);
         Files.walk(dir)
                 .sorted(Comparator.reverseOrder())
