@@ -5,6 +5,9 @@ import com.hackathon.aicodefixer.service.ScmService;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,13 +30,16 @@ public class DevAgentController {
 
             //Queue Mechanism - When P1 completes, then P2 ...
         scmService.getBinary(error);
+        Resource warFile = new ClassPathResource("/Users/vsinsing/OraHacks2024/projectapp/build/libs/productapp.war");
+        Resource file = new FileSystemResource("/Users/vsinsing/OraHacks2024/projectapp/build/libs/productapp.war");
+        log.info("file {}",file.getFilename());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "productapp.war");
 
         // Return the WAR file as the response entity
-        //return new ResponseEntity<>(warFileBytes, headers, HttpStatus.OK);
-        return new ResponseEntity<>("success", HttpStatus.OK);
+        return new ResponseEntity<>(file, headers, HttpStatus.OK);
+        //return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
     /*synchronised {
