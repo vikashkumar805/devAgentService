@@ -1,9 +1,8 @@
 package com.hackathon.aicodefixer.service;
 
-import com.hackathon.aicodefixer.model.ErrorRequest;
-import com.hackathon.aicodefixer.model.GitPRRequest;
-import com.hackathon.aicodefixer.model.LLMRequest;
-import com.hackathon.aicodefixer.model.MethodDetails;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hackathon.aicodefixer.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -48,13 +47,17 @@ public class ScmService {
         log.info("getBinary ENDS");
     }
 
-    private String processLLM(String exception, String codeSnippet) {
+    private String processLLM(String exception, String codeSnippet) throws JsonProcessingException {
 
         String responseBody = "";
+        LLMResponse llmresponse = new LLMResponse();
         try {
             RestTemplate restTemplate = new RestTemplate();
 
-            String requestBody = exception.concat(codeSnippet);
+            log.info("exception {}", exception);
+            log.info("codesnippet {}", codeSnippet);
+            String requestBody = createRequestBody(exception, codeSnippet);
+           // String requestBody = exception.concat(codeSnippet);
             LLMRequest request = new LLMRequest();
             log.info("requestBody {}", requestBody);
             request.setText(requestBody);
@@ -73,12 +76,29 @@ public class ScmService {
             // Get response body
              responseBody = responseEntity.getBody();
 
-            log.info("responseBody {}", responseBody.toString());
+            log.info("responseBody {}", responseBody);
             log.info("responseEntity.getStatusCode() {}", responseEntity.getStatusCode());
+            ObjectMapper objectMapper = new ObjectMapper();
+             llmresponse = objectMapper.readValue(responseBody, LLMResponse.class);
+            log.info("llmresponse {}",llmresponse);
         }catch(Exception excp){
             log.error("LLM API call failed", excp);
+            llmresponse.setResponse("");
         }
-        return responseBody;
+
+        return llmresponse.getResponse();
+    }
+
+    private String createRequestBody(String exception, String codeSnippet) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("// Code snippet with an exception");
+        sb.append(System.lineSeparator());
+        sb.append(codeSnippet);
+        sb.append(System.lineSeparator());
+        sb.append("// Exception \n");
+        sb.append(exception);
+        return sb.toString();
     }
 
     private String extractCodeSnippetfromMethod(String downloadPath, ErrorRequest error) throws IOException {
@@ -95,7 +115,7 @@ public class ScmService {
         log.info("methodSnippet {}",details);
         String errorFixCode = processLLM(error.getException(),details.getContent());
         log.info("errorFixCode {}", errorFixCode);
-        List<String> fixedCodeList = List.of(errorFixCode.split("\n"));
+        List<String> fixedCodeList = List.of(errorFixCode.split("\\\\n"));
         log.info("fixedCodeList {}",fixedCodeList);
         List<String> fixedCodeList1 = new ArrayList<>();
         fixedCodeList1.add(errorFixCode);
@@ -106,7 +126,7 @@ public class ScmService {
             log.info("fileContents.doesnot contains(methodSnippet)");
         }*/
         //for(int i=0;i<deta)
-        List<String> modifiedList = replaceContent(fileContentList,fixedCodeList1,details.getStartLine(),
+        List<String> modifiedList = replaceContent(fileContentList,fixedCodeList,details.getStartLine(),
                 details.getEndLine());
        /* String updatedFileContent = fileContents.replace(details.getContent(),errorFixCode);
         log.info("updatedFileContent {}", updatedFileContent);*/
@@ -197,11 +217,11 @@ public class ScmService {
         log.info("Git Add initiated");
         git.add().addFilepattern(".").call();
         log.info("Git Commit initiated");
-        git.commit().setMessage(commitMsg).call();
+         git.commit().setMessage(commitMsg).call();
         log.info("Git Push initiated");
-        git.push().setCredentialsProvider
+       git.push().setCredentialsProvider
                 (new UsernamePasswordCredentialsProvider
-                        (username, "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"))
+                        (username, "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"))
                 .call();
         log.info("Git Push completed");
         git.getRepository().close();
@@ -256,7 +276,7 @@ public class ScmService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "application/vnd.github+json");
-            headers.set("Authorization", "Bearer " + "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");
+            headers.set("Authorization", "Bearer " + "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");
             headers.set("X-GitHub-Api-Version", "2022-11-28");
 
             // Set request entity
