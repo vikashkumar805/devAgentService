@@ -201,7 +201,7 @@ public class ScmService {
         log.info("Git Push initiated");
         git.push().setCredentialsProvider
                 (new UsernamePasswordCredentialsProvider
-                        (username, "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"))
+                        (username, "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"))
                 .call();
         log.info("Git Push completed");
         git.getRepository().close();
@@ -256,7 +256,7 @@ public class ScmService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "application/vnd.github+json");
-            headers.set("Authorization", "Bearer " + "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");
+            headers.set("Authorization", "Bearer " + "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");
             headers.set("X-GitHub-Api-Version", "2022-11-28");
 
             // Set request entity
