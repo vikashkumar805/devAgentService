@@ -30,10 +30,17 @@ import java.util.List;
 public class ScmService {
     @Value("${github.repo.url}")
     private String repoURL;
+
+    @Value("${downloadPath}")
+    private String downloadPath;
+
+    @Value("${git.user.name}")
+    private String username;
+
     public void getBinary(ErrorRequest error) throws GitAPIException, IOException {
         log.info("getBinary STARTS");
         log.info("error {}", error.getMethodName());
-        String downloadPath = "/Users/vsinsing/OraHacks2024";
+        //String downloadPath = "/Users/vsinsing/OraHacks2024";
         String branchName = error.getIssueId();
         cloneGitRepo(repoURL,downloadPath, branchName,error);
 
@@ -165,7 +172,7 @@ public class ScmService {
         log.info("Cloning Starts");
        Git git =  Git.cloneRepository()
                 .setURI(repositoryURL)
-                .setCredentialsProvider(new UsernamePasswordCredentialsProvider("vikashkumar805", "GitHub@OL2$"))
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, "GitHub@OL2$"))
                .setBranch("brokenbranch")
                 .setDirectory(new File(downloadPath)).call();
        //Use Project token provided by Chandra
@@ -176,7 +183,7 @@ public class ScmService {
                 .setName("brokenbranch")
                 .call();*/
 
-        String username = "vikashkumar805";
+        //String username = "vikashkumar805";
         String key = "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";
 
         log.info("create Branch in Git with name {}", branchName.concat(("_codefix")));
@@ -194,7 +201,7 @@ public class ScmService {
         log.info("Git Push initiated");
         git.push().setCredentialsProvider
                 (new UsernamePasswordCredentialsProvider
-                        ("vikashkumar805", "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"))
+                        (username, "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"))
                 .call();
         log.info("Git Push completed");
         git.getRepository().close();
@@ -249,7 +256,7 @@ public class ScmService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Accept", "application/vnd.github+json");
-            headers.set("Authorization", "Bearer " + "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");
+            headers.set("Authorization", "Bearer " + "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");
             headers.set("X-GitHub-Api-Version", "2022-11-28");
 
             // Set request entity

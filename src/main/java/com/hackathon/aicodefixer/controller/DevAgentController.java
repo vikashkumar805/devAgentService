@@ -5,6 +5,7 @@ import com.hackathon.aicodefixer.service.ScmService;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -20,6 +21,8 @@ import java.io.IOException;
 @Slf4j
 public class DevAgentController {
 
+    @Value("${war.path}")
+    String warPath;
     @Autowired
     ScmService scmService;
 
@@ -30,8 +33,8 @@ public class DevAgentController {
 
             //Queue Mechanism - When P1 completes, then P2 ...
         scmService.getBinary(error);
-        Resource warFile = new ClassPathResource("/Users/vsinsing/OraHacks2024/projectapp/build/libs/productapp.war");
-        Resource file = new FileSystemResource("/Users/vsinsing/OraHacks2024/projectapp/build/libs/productapp.war");
+     //   Resource warFile = new ClassPathResource("/Users/vsinsing/OraHacks2024/projectapp/build/libs/productapp.war");
+        Resource file = new FileSystemResource(warPath);
         log.info("file {}",file.getFilename());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
