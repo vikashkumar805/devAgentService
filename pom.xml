@@ -83,6 +83,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>DevAgentSvc</finalName>
 	</build>
 
 	<!--<build>
